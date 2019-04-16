@@ -1,9 +1,13 @@
 {
 	"name": "va-create",
-	"version": "0.0.6",
-	"description": "",
+	"version": "0.0.7",
 	"main": "index.js",
-	"bin": "./cli.js",
+	"engines": {
+		"node": ">=10.0.0"
+	},
+	"bin": {
+		"va-create": "./cli.js"
+	},
 	"_moduleAliases": {
 		"va-create": "./index.js"
 	},
@@ -14,7 +18,7 @@
 	"scripts": {
 		"exec": "node ./utils/run.js ./index.js",
 		"init": "rm -rf node_modules > /dev/null && npm i",
-		"update": "npm-check-updates -u && npm install && npm update --dev && npm audit fix",
+		"update": "npx npm-check-updates -u && npm install && npm update --dev && npm audit fix",
 		"test": "eslint .",
 		"fix": "eslint --fix .",
 		"release": "npm run release-patch",
@@ -27,22 +31,10 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"@babel/core": "^7.4.3",
-		"@babel/plugin-proposal-object-rest-spread": "^7.4.3",
-		"@babel/plugin-proposal-optional-chaining": "^7.2.0",
-		"@babel/plugin-proposal-unicode-property-regex": "^7.4.0",
-		"@babel/plugin-syntax-dynamic-import": "^7.2.0",
-		"@babel/plugin-syntax-import-meta": "^7.2.0",
-		"@babel/plugin-transform-regenerator": "^7.4.3",
-		"@babel/polyfill": "^7.4.3",
-		"@babel/preset-env": "^7.4.3",
-		"@babel/register": "^7.4.0",
 		"camelcase": "^5.3.1",
 		"colors": "^1.3.3",
-		"core-js": "^3.0.1",
 		"deepmerge": "^3.2.0",
 		"esm": "^3.2.22",
-		"form-data": "^2.3.3",
 		"fs-extra": "^7.0.1",
 		"globby": "^9.2.0",
 		"module-alias": "^2.2.0",
@@ -53,12 +45,17 @@
 	},
 	"devDependencies": {
 		"babel-eslint": ">=10.0.1",
-		"babel-plugin-istanbul": "^5.1.2",
 		"cross-env": "^5.2.0",
 		"eslint": ">=5.16.0",
-		"foreach-cli": "^1.8.1",
-		"npm-check-updates": "^3.1.8",
-		"npm-run-all": "^4.1.5",
-		"va-release": "^1.1.12"
-	}
+		"va-release": "^1.1.13"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/forceuser/va-create.git"
+	},
+	"bugs": {
+		"url": "https://github.com/forceuser/va-create/issues"
+	},
+	"homepage": "https://github.com/forceuser/va-create#readme",
+	"description": ""
 }

@@ -13,7 +13,7 @@ import webpack from "webpack";
 import invokeMiddleware from "./invoke-middleware";
 import webpackConfigRaw from "../webpack/development.config";
 import {URL} from "universal-url";
-import open from "opn";
+import open from "open";
 import merge from "deepmerge";
 import yargs from "yargs";
 

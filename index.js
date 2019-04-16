@@ -39,14 +39,16 @@ async function main () {
 		data.src = path.resolve(__dirname, "./project");
 		data.dest = path.resolve(cwd, `./${data.name}`);
 		await fs.copy(data.src, data.dest, {overwrite: true});
-		const pkg = JSON.parse((await fs.readFile(path.resolve(data.dest, "./package.json"), "utf8")).replace(/projectname/gm, data.name));
+		const pkg = JSON.parse((await fs.readFile(path.resolve(data.dest, "./package.json"), "utf8")).replace(/projectname/gm, data.name).replace(/projectowner/gm, data.owner));
 		pkg["va-release"].owner = data.owner;
 		pkg["va-release"].library = camelcase(data.name);
 		await fs.writeFile(path.resolve(data.dest, "./package.json"), JSON.stringify(pkg, null, "\t"), "utf8");
 		console.log(`${"Success!".green} Project ${`${data.name}`.cyan} created at ${`${data.dest}`.cyan}`);
+		process.exit(0);
 	}
 	catch (error) {
-		console.log("ERROR", error);
+		console.log(`${"Error!".red} Failed to create project ${`${data.name}`.cyan} at ${`${data.dest}`.cyan}`);
+		process.exit(1);
 	}
 	return data;
 }
