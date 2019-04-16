@@ -21,7 +21,7 @@
 	},
 	"scripts": {
 		"init": "rm -rf node_modules > /dev/null && npm i",
-		"update": "npm-check-updates -u && npm install && npm update --dev && npm audit fix",
+		"update": "npx npm-check-updates -u && npm install && npm update --dev && npm audit fix",
 		"test": "eslint . && cross-env BROWSERSLIST_ENV=modern NODE_ENV=test BABEL_ENV=test node ./utils/run.js ./test/index.js | faucet && nyc report",
 		"test-webpack": "eslint . && cross-env BROWSERSLIST_ENV=modern NODE_ENV=test BABEL_ENV=test webpack --config ./webpack/test.config.js && nyc --reporter=lcov node ./test/build/index.js | faucet && nyc report",
 		"fix": "eslint --fix .",
