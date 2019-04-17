@@ -1,0 +1,6 @@
+{
+	"dependencies": {},
+	"devDependencies": {
+		"webpack-dev-middleware": "^3.6.2"
+	}
+}

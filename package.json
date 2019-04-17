@@ -1,6 +1,6 @@
 {
 	"name": "va-create",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"main": "index.js",
 	"engines": {
 		"node": ">=10.0.0"
@@ -37,6 +37,7 @@
 		"esm": "^3.2.22",
 		"fs-extra": "^7.0.1",
 		"globby": "^9.2.0",
+		"inquirer": "^6.3.1",
 		"module-alias": "^2.2.0",
 		"readline-promise": "^1.0.4",
 		"shelljs": "^0.8.3",

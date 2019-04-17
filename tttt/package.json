@@ -1,15 +1,15 @@
 {
-	"name": "projectname",
+	"name": "tttt",
 	"version": "0.0.0",
 	"description": "projectdescription",
 	"license": "MIT",
-	"main": "dist/projectname.js",
+	"main": "dist/tttt.js",
 	"module": "src/index.js",
 	"engines": {
 		"node": ">=10.0.0"
 	},
 	"_moduleAliases": {
-		"projectname": "./src/index.js"
+		"tttt": "./src/index.js"
 	},
 	"nyc": {
 		"temp-dir": "./coverage",
@@ -47,7 +47,8 @@
 				],
 				"dest": "./"
 			}
-		]
+		],
+		"library": "tttt"
 	},
 	"keywords": [],
 	"dependencies": {},
@@ -94,11 +95,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/projectowner/projectname.git"
+		"url": "git+https://github.com/forceuser/tttt.git"
 	},
 	"bugs": {
-		"url": "https://github.com/projectowner/projectname/issues"
+		"url": "https://github.com/forceuser/tttt/issues"
 	},
-	"homepage": "https://github.com/projectowner/projectname#readme",
+	"homepage": "https://github.com/forceuser/tttt#readme",
 	"tonicExampleFilename": "tonic-example.js"
 }
