@@ -1,1 +1,0 @@
-const projectnameCamel = require("projectname");
