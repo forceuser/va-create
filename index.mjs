@@ -7,7 +7,9 @@ import yargs from "yargs";
 import inquirer from "inquirer";
 import merge from "deepmerge";
 import camelcase from "camelcase";
-import {URL} from "universal-url";
+import open from "open";
+import isWSL from "is-wsl";
+import wslpath from "wsl-path";
 import "colors";
 
 const __dirname = $path.dirname(new URL(import.meta.url).pathname);
@@ -31,27 +33,45 @@ async function readln (question) {
 }
 const fileRules = {
 	"-npmignore": {rename: ".npmignore"},
-	"package": {include: false},
-	"babel.config.js": {include: ["client", "lib", "babel"]},
-	".browserslistrc": {include: ["client", "lib", "babel"]},
-	"webpack": {include: ["client", "lib"]},
-	".travis.yml": {include: ["travis"]},
-	"dist": {include: ["client", "lib"]},
-	"src/server.js": {include: ["server"]},
-	"src/cli.js": {include: ["cli"]},
-	"src/index.js": {include: ["client", "lib"]},
-	"utils/dev-server.js": {include: ["client"]},
-	"utils/invoke-middleware.js": {include: ["client"]},
+	"package": {flags: false},
+	"babel.config.js": {flags: ["client", "lib", "babel"]},
+	".browserslistrc": {flags: ["client", "lib", "babel"]},
+	"webpack": {flags: ["client", "lib"]},
+	".travis.yml": {flags: ["travis"]},
+	"dist": {flags: ["client", "lib", "server"]},
+	"src/server.mjs": {flags: ["server"], compile: true},
+	"src/cli.mjs": {flags: ["cli"]},
+	"src/index.mjs": {flags: ["client", "lib"]},
+	"utils/run.js": {flags: false},
+	"utils/dev-server.mjs": {flags: ["client"]},
+	"utils/invoke-middleware.mjs": {flags: ["client"]},
 };
+
+const packageRules = [
+	{name: "server", flags: ["server"]},
+	{name: "client", flags: ["client"]},
+	{name: "cli", flags: ["cli"]},
+	{name: "babel", flags: ["babel", "nyc", "client"]},
+	{name: "coverage", flags: ["c8", "nyc", "coverage"]},
+	{name: "c8", flags: ["c8"]},
+	{name: "nyc", flags: ["nyc"]},
+	{name: "webpack", flags: ["webpack", "nyc", "client"]},
+	{name: "documentation", flags: ["documentation"]},
+];
+
+const flagList = ["client", "server", "cli", "lib", "babel", "coverage", "c8", "nyc", "webpack", "documentation"];
+
+
+function isIncluded (include, flags) {
+	return include == null ||
+	include === true ||
+	(
+		Array.isArray(include) &&
+		include.some(i => flags.includes(i))
+	);
+}
+
 async function copy (src, dest, flags) {
-	function isIncluded (include) {
-		return include == null ||
-		include === true ||
-		(
-			Array.isArray(include) &&
-			include.some(i => flags.includes(i))
-		);
-	}
 	const root = src;
 	async function copyDir (src, dest) {
 		const entries = await fs.readdir(src, {withFileTypes: true});
@@ -59,10 +79,10 @@ async function copy (src, dest, flags) {
 		for (const entry of entries) {
 			const srcPath = $path.resolve(src, entry.name);
 			const relPath = $path.relative(root, srcPath);
-			const fileRule = fileRules[relPath];
+			const rule = fileRules[relPath];
 			// console.log("relPath", relPath);
-			if (!fileRule || (fileRule && isIncluded(fileRule.include))) {
-				const destPath = $path.resolve(dest, fileRule && fileRule.rename ? fileRule.rename : entry.name);
+			if (!rule || (rule && isIncluded(rule.flags, flags))) {
+				const destPath = $path.resolve(dest, rule && rule.rename ? rule.rename : entry.name);
 				if (entry.isDirectory()) {
 					await copyDir(srcPath, destPath);
 				}
@@ -91,7 +111,7 @@ async function main () {
 				type: "input",
 				name: "name",
 				message: "project name",
-				default: settings.name,
+				default: argv._[0] || settings.name,
 				validate: val => (val || "").trim().length > 0,
 			},
 			{
@@ -100,66 +120,40 @@ async function main () {
 				default: settings.owner,
 				message: "github project owner",
 			},
-			{
+			...flagList.map(name => ({
 				type: "list",
 				choices: ["yes", "no"],
-				name: "isClient",
-				default: settings.isClient,
-				message: "client web app code",
-			},
-			{
-				type: "list",
-				choices: ["yes", "no"],
-				name: "isServer",
-				default: settings.isServer,
-				message: "server code",
-			},
-			{
-				type: "list",
-				choices: ["yes", "no"],
-				name: "isCLI",
-				default: settings.isCLI,
-				message: "command line interface (cli) code",
-			},
-			{
-				type: "list",
-				choices: ["yes", "no"],
-				name: "isLib",
-				default: settings.isLib,
-				message: "basic js library code",
-			},
+				name,
+				default: settings[name],
+			})),
 		];
 		const data = await inquirer.prompt(questions);
 		Object.assign(settings, data);
-
-		const flags = [];
-		if (data.isClient === "yes") {
-			flags.push("client");
-		}
-		if (data.isServer === "yes") {
-			flags.push("server");
-		}
-		if (data.isCLI === "yes") {
-			flags.push("cli");
-		}
-		if (data.isLib === "yes") {
-			flags.push("lib");
-		}
-
+		const flags = flagList.filter(name => data[name] === "yes");
 
 		await fs.writeFile($path.resolve(dir, "./settings.json"), JSON.stringify(settings, null, "\t"), "utf8");
 
 		data.src = $path.resolve(__dirname, "./project");
 		data.dest = $path.resolve(cwd, `./${data.name}`);
+
 		await copy(data.src, data.dest, flags);
 
-		const pkg = JSON.parse((await fs.readFile($path.resolve(data.dest, "./package.json"), "utf8")).replace(/projectname/gm, data.name).replace(/projectowner/gm, data.owner));
+		const readJson = async (fileName) => JSON.parse(await fs.readFile($path.resolve(data.src, fileName), "utf8"));
+		let pkg = JSON.parse((await fs.readFile($path.resolve(data.dest, "./package.json"), "utf8")).replace(/projectname/gm, data.name).replace(/projectowner/gm, data.owner));
 		pkg["va-release"].library = camelcase(data.name);
 
+		for (const rule of packageRules) {
+			if (!rule || (rule && isIncluded(rule.flags, flags))) {
+				const p = await readJson(`./package/${rule.name}.json`);
+				pkg = merge(pkg, p);
+			}
+		}
 
 		await fs.writeFile($path.resolve(data.dest, "./package.json"), JSON.stringify(pkg, null, "\t"), "utf8");
 
 		console.log(`${"Success!".green} Project ${`${data.name}`.cyan} created at ${`${data.dest}`.cyan}`);
+
+		open(isWSL ? shell.exec(`wslpath -w ${data.dest}`, {silent: true}).toString() : data.dest, {app: "code"});
 		process.exit(0);
 	}
 	catch (error) {

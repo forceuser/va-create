@@ -1,0 +1,9 @@
+{
+	"scripts": {
+		"test:c8": "cross-env NODE_ENV=test c8 -r json node --experimental-modules --no-warnings ./test/index.mjs | faucet && c8 report -r text"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"c8": "^3.5.0"
+	}
+}

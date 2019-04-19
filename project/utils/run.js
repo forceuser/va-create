@@ -9,6 +9,7 @@ const importModule = require("esm")(module, {cjs: true, mode: "auto", cache: fal
 
 importModule("@babel/register")({root: path.resolve(__dirname, "..")});
 importModule("@babel/polyfill");
+
 importModule("module-alias/register");
 
 if (process.env.NODE_ENV === "test") {

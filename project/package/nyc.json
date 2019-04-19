@@ -1,6 +1,10 @@
 {
+	"scripts": {
+		"test:nyc": "cross-env BROWSERSLIST_ENV=modern NODE_ENV=test BABEL_ENV=test webpack --config ./webpack/test.config.js && nyc --reporter=lcov node ./test/build/index.js | faucet && nyc report"
+	},
 	"dependencies": {},
 	"devDependencies": {
-		"webpack-dev-middleware": "^3.6.2"
+		"babel-plugin-istanbul": "^5.1.2",
+		"nyc": "^14.0.0"
 	}
 }

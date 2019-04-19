@@ -1,6 +1,12 @@
 {
-	"dependencies": {},
+	"scripts": {
+		"start:server": "node --experimental-modules --no-warnings ./src/server.mjs"
+	},
+	"dependencies": {
+		"express": "^4.16.3",
+		"express-http-proxy": "^1.2.0",
+		"isomorphic-fetch": "github:forceuser/isomorphic-fetch"
+	},
 	"devDependencies": {
-		"webpack-dev-middleware": "^3.6.2"
 	}
 }

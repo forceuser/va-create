@@ -9,4 +9,5 @@ test/test-runner-old/**
 assets/**
 coverage/**
 gruntfile.js
+**/cli.mjs
 .eslintrc.js

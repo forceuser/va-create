@@ -1,6 +1,17 @@
 {
+	"scripts": {
+		"build:js": "run-p build-js:*",
+		"build-js:legacy": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=production BABEL_ENV=production webpack --config ./webpack/production.config.js",
+		"build-js:modern": "cross-env BROWSERSLIST_ENV=modern NODE_ENV=production BABEL_ENV=production webpack --config ./webpack/production.config.js"
+	},
 	"dependencies": {},
 	"devDependencies": {
-		"webpack-dev-middleware": "^3.6.2"
+		"webpack": "4.30.0",
+		"webpack-bundle-analyzer": "^3.3.2",
+		"webpack-cli": "3.3.0",
+		"webpack-merge": "4.2.1",
+		"imports-loader": "^0.8.0",
+		"inject-loader": "^4.0.1",
+		"terser-webpack-plugin": "^1.2.3"
 	}
 }

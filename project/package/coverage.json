@@ -1,0 +1,6 @@
+{
+	"dependencies": {},
+	"devDependencies": {
+		"codecov": "^3.3.0"
+	}
+}

@@ -1,6 +1,30 @@
 {
+	"scripts": {
+		"build": "run-s clean-js bump build:* copyfiles minify:*",
+		"copyfiles": "copyfiles -f ./src/sw.js ./dist/",
+		"dev": "run-p start build-and-minify:css copyfiles dev:less \"dev:js -- {@}\" --",
+		"dev:js": "node --experimental-modules --no-warnings ./utils/dev-server.mjs",
+		"clean-js": "rm -rf ./dist/js/ > /dev/null",
+		"build:less": "lessc ./src/less/index.less ./dist/css/index.css && postcss ./dist/css/index.css -r -u autoprefixer",
+		"minify:css": "foreach -g './dist/css/index.css' -i './dist/css/index.min.css' -x 'uglifycss #{path} --output #{dir}/#{name}.min#{ext}'",
+		"build-and-minify:css": "run-p build:less minify:css",
+		"dev:less": "watch -p './src/less/*.less' -c 'npm run build-and-minify:css'"
+	},
 	"dependencies": {},
 	"devDependencies": {
-		"webpack-dev-middleware": "^3.6.2"
+		"webpack-dev-middleware": "^3.6.2",
+		"webpack-hot-middleware": "^2.24.3",
+		"http-proxy-middleware": "^0.19.0",
+		"foreach-cli": "^1.8.0",
+		"open": "^6.1.0",
+		"watch-cli": "^0.2.3",
+		"uglifycss": "0.0.29",
+		"ngrok": "^3.1.0",
+		"postcss-cli": "^6.0.0",
+		"less": "^3.8.1",
+		"html-escape": "^2.0.0",
+		"html-loader": "^0.4.5",
+		"autoprefixer": "^9.1.5",
+		"browser-sync": "^2.24.7"
 	}
 }

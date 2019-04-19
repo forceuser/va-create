@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const mainModule = require.main.filename;
 const isMain = mainModule === __filename;
-const importModule = require("esm")(module, {cjs: true, mode: "auto", cache: false}, {cache: false});
+const importModule = require("esm")(module, {cjs: true, mode: "auto", cache: false, "sourceMap": true}, {cache: false, "sourceMap": true});
 importModule("module-alias/register");
 
 if (process.env.NODE_ENV === "test") {
@@ -28,6 +28,7 @@ const findValue = (arr, fn) => {
 
 function getArg (items) {
 	const argv = process.argv.slice(2, process.argv.length);
+	console.log("argv", argv);
 	let i = 0;
 	let indexed = 0;
 	const params = {};
@@ -47,7 +48,7 @@ function getArg (items) {
 }
 
 const script = getArg(["s", "script", ...(isMain ? [0] : [])]);
-
+console.log("script", script);
 if (script) {
 	module.exports = importModule(path.resolve(process.cwd(), script));
 }

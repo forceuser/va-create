@@ -10,3 +10,4 @@ assets/**
 coverage/**
 gruntfile.js
 .eslintrc.js
+**/cli.mjs
