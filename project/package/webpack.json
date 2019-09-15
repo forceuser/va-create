@@ -6,6 +6,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
+		"babel-loader": "^8.0.6",
 		"webpack": "4.30.0",
 		"webpack-bundle-analyzer": "^3.3.2",
 		"webpack-cli": "3.3.0",

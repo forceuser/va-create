@@ -1,0 +1,10 @@
+{
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/{{project_owner}}/{{project_name}}.git"
+	},
+	"bugs": {
+		"url": "https://github.com/{{project_owner}}/{{project_name}}/issues"
+	},
+	"homepage": "https://github.com/{{project_owner}}/{{project_name}}#readme"
+}

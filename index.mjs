@@ -33,33 +33,55 @@ async function readln (question) {
 }
 const fileRules = {
 	"-npmignore": {rename: ".npmignore"},
-	"package": {flags: false},
+	"package.json": {flags: false},
 	"babel.config.js": {flags: ["client", "lib", "babel"]},
 	".browserslistrc": {flags: ["client", "lib", "babel"]},
-	"webpack": {flags: ["client", "lib"]},
 	".travis.yml": {flags: ["travis"]},
-	"dist": {flags: ["client", "lib", "server"]},
-	"src/server.mjs": {flags: ["server"], compile: true},
-	"src/cli.mjs": {flags: ["cli"]},
-	"src/index.mjs": {flags: ["client", "lib"]},
+	".nycrc.json": {flags: ["c8", "nyc"]},
+	"devserver.json": {flags: ["client"]},
+	"tonic-example.js": {flags: ["lib"]},
+	"webpack": {flags: ["client", "lib"]},
+	"dist": {flags: ["client", "lib"]},
+	"src/app/server.mjs": {flags: ["server"], compile: true},
+	"src/app/cli.mjs": {flags: ["cli"]},
+	"src/app/index.mjs": {flags: ["client", "lib"]},
+	"src/sw.js": {flags: ["client"]},
 	"utils/run.js": {flags: false},
 	"utils/dev-server.mjs": {flags: ["client"]},
 	"utils/invoke-middleware.mjs": {flags: ["client"]},
 };
 
+
+function choiseItem (argv, settings) {
+	return {type: "list", choices: ["yes", "no"], default: settings[this.name]};
+}
+
+function inputItem (argv, settings) {
+	return {
+		type: "input",
+		default: argv._[0] || settings[this.name],
+		validate: val => (val || "").trim().length > 0,
+	};
+}
+
 const packageRules = [
-	{name: "server", flags: ["server"]},
-	{name: "client", flags: ["client"]},
-	{name: "cli", flags: ["cli"]},
-	{name: "babel", flags: ["babel", "nyc", "client"]},
-	{name: "coverage", flags: ["c8", "nyc", "coverage"]},
-	{name: "c8", flags: ["c8"]},
-	{name: "nyc", flags: ["nyc"]},
-	{name: "webpack", flags: ["webpack", "nyc", "client"]},
-	{name: "documentation", flags: ["documentation"]},
+	{name: "project_name", text: "Project name:", get: inputItem},
+	{name: "server", message: "Include web-server code?", get: choiseItem},
+	{name: "client", message: "Include web-client code?", deps: ["webpack"], get: choiseItem},
+	{name: "lib", message: "Will project be a standalone library?", get: choiseItem},
+	{name: "cli", message: "Will it have command line interface?", get: choiseItem},
+	{name: "github", message: "Use github repo?", ask: ["package_owner"], get: choiseItem},
+	{name: "package_owner", message: "Enter github package owner", optional: true, get: inputItem},
+	{name: "npm", message: "Publish to npm?", get: choiseItem},
+	{name: "babel", message: "Include babel boilerlate?", get: choiseItem},
+	{name: "webpack", message: "Include webpack?", get: choiseItem},
+	{name: "c8", message: "Include c8 node instrumentation and coverage tool?", get: choiseItem},
+	{name: "nyc", message: "Include istanbul/nyc instrumentation and coverage tool?", deps: ["webpack"], get: choiseItem},
+	{name: "codecov", message: "Include codecov?", get: choiseItem},
+	{name: "documentation", get: choiseItem},
 ];
 
-const flagList = ["client", "server", "cli", "lib", "babel", "coverage", "c8", "nyc", "webpack", "documentation"];
+// const flagList = ["client", "server", "cli", "lib", "github", "babel", "c8", "nyc", "codecov", "webpack", "documentation"];
 
 
 function isIncluded (include, flags) {
@@ -71,24 +93,39 @@ function isIncluded (include, flags) {
 	);
 }
 
-async function copy (src, dest, flags) {
+async function copy (src, dest, flags, data) {
+	async function updateFile (destPath) {
+		let fileContents = (await fs.readFile(destPath, "utf8"));
+		fileContents = fileContents.replace(/\{\{(.*?)\}\}/igm, (all, param) => {
+			const p = data[param];
+			return p == null ? `{{${param}}}` : p;
+		});
+		await fs.writeFile(destPath, fileContents, "utf8");
+	}
+
 	const root = src;
 	async function copyDir (src, dest) {
 		const entries = await fs.readdir(src, {withFileTypes: true});
-		await fs.mkdir(dest);
+		if (!fs.existsSync(dest)) {
+			await fs.mkdirp(dest);
+		}
 		for (const entry of entries) {
 			const srcPath = $path.resolve(src, entry.name);
 			const relPath = $path.relative(root, srcPath);
 			const rule = fileRules[relPath];
 			// console.log("relPath", relPath);
-			if (!rule || (rule && isIncluded(rule.flags, flags))) {
+			if (!rule || rule.flags == null || (Array.isArray(rule.flags) && rule.flags.some(flag => flags.has(flag)))) {
 				const destPath = $path.resolve(dest, rule && rule.rename ? rule.rename : entry.name);
 				if (entry.isDirectory()) {
 					await copyDir(srcPath, destPath);
 				}
 				else {
 					await fs.copyFile(srcPath, destPath);
+					await updateFile(destPath);
 				}
+			}
+			else if (fs.existsSync($path.resolve(dest, entry.name))) {
+				await updateFile($path.resolve(dest, entry.name));
 			}
 
 		}
@@ -106,52 +143,70 @@ async function main () {
 
 	try {
 		console.log("Let's create a new project", ":)".green);
-		const questions = [
-			{
-				type: "input",
-				name: "name",
-				message: "project name",
-				default: argv._[0] || settings.name,
-				validate: val => (val || "").trim().length > 0,
-			},
-			{
-				type: "input",
-				name: "owner",
-				default: settings.owner,
-				message: "github project owner",
-			},
-			...flagList.map(name => ({
-				type: "list",
-				choices: ["yes", "no"],
-				name,
-				default: settings[name],
-			})),
-		];
-		const data = await inquirer.prompt(questions);
-		Object.assign(settings, data);
-		const flags = flagList.filter(name => data[name] === "yes");
+		const flags = new Set();
+		const ask = new Set();
+		let data = {};
+		await packageRules.reduce(async (prev, rule) => {
+			await prev;
+			if ((!rule.optional || ask.has(rule.name)) && !flags.has(rule.name)) {
+				if (rule.get) {
+					rule = Object.assign(rule, rule.get(argv, settings));
+				}
+				const d = await inquirer.prompt([rule]);
+				if (rule.type === "list" && d[rule.name] === "yes") {
+					flags.add(rule.name);
+					if (rule.deps) {
+						rule.deps.forEach(flag => {
+							flags.add(flag);
+							data[flag] = "yes";
+						});
+					}
+					if (rule.ask) {
+						rule.ask.forEach(flag => ask.add(flag));
+					}
+				}
+				data = Object.assign(data, d);
+			}
+		}, {});
 
+		Object.assign(settings, data);
+		data.src = $path.resolve(__dirname, "./project");
+		data.dest = $path.resolve(cwd, `./${data.project_name}`);
 		await fs.writeFile($path.resolve(dir, "./settings.json"), JSON.stringify(settings, null, "\t"), "utf8");
 
-		data.src = $path.resolve(__dirname, "./project");
-		data.dest = $path.resolve(cwd, `./${data.name}`);
-
-		await copy(data.src, data.dest, flags);
-
 		const readJson = async (fileName) => JSON.parse(await fs.readFile($path.resolve(data.src, fileName), "utf8"));
-		let pkg = JSON.parse((await fs.readFile($path.resolve(data.dest, "./package.json"), "utf8")).replace(/projectname/gm, data.name).replace(/projectowner/gm, data.owner));
-		pkg["va-release"].library = camelcase(data.name);
+		let pkg = JSON.parse((await fs.readFile($path.resolve(data.src, "./package.json"), "utf8")));// .replace(/projectname/gm, data.name).replace(/projectowner/gm, data.owner));
+		pkg["va-release"].library = camelcase(data.project_name);
+
+		if (!flags.has("npm")) {
+			pkg.private = true;
+			pkg["va-release"].flags = pkg["va-release"].flags || [];
+			pkg["va-release"].flags.push("no-npm");
+		}
+		if (!flags.has("github")) {
+			pkg["va-release"].flags = pkg["va-release"].flags || [];
+			pkg["va-release"].flags.push("no-github");
+		}
+
+		if (flags.has("babel")) {
+			pkg["va-release"].babel = true;
+		}
+
+		if (flags.has("webpack")) {
+			pkg["va-release"].webpack = true;
+		}
 
 		for (const rule of packageRules) {
-			if (!rule || (rule && isIncluded(rule.flags, flags))) {
+			if (flags.has(rule.name)) {
 				const p = await readJson(`./package/${rule.name}.json`);
 				pkg = merge(pkg, p);
 			}
 		}
-
+		await fs.ensureFile($path.resolve(data.dest, "./package.json"));
 		await fs.writeFile($path.resolve(data.dest, "./package.json"), JSON.stringify(pkg, null, "\t"), "utf8");
+		await copy(data.src, data.dest, flags, data);
 
-		console.log(`${"Success!".green} Project ${`${data.name}`.cyan} created at ${`${data.dest}`.cyan}`);
+		console.log(`${"Success!".green} Project ${`${data.project_name}`.cyan} created at ${`${data.dest}`.cyan}`);
 
 		open(isWSL ? shell.exec(`wslpath -w ${data.dest}`, {silent: true}).toString() : data.dest, {app: "code"});
 		process.exit(0);

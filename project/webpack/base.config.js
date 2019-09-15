@@ -9,9 +9,9 @@ const vasettings = pkg["va-release"] || {};
 module.exports = (env = {}) => {
 	console.log("env", env);
 	return ({
-		entry: `./src/index.js`,
+		entry: `./src/app/index.mjs`,
 		output: {
-			path: path.resolve(__dirname, "../dist"),
+			path: path.resolve(__dirname, "../dist/js"),
 			filename: `${pkg.name}${process.env.BROWSERSLIST_ENV === "modern" ? ".modern" : ""}.js`,
 			library: vasettings.library,
 			libraryExport: "default",
@@ -25,17 +25,19 @@ module.exports = (env = {}) => {
 		devtool: "source-map",
 		module: {
 			rules: [
-				{
-					test: /\.(js|mjs)$/,
-					exclude: /(node_modules)/,
-					use: [{
-						loader: "babel-loader",
-						options: {
-							babelrc: true,
+				...(vasettings.babel
+					? [{
+						test: /\.(js|mjs)$/,
+						exclude: /(node_modules)/,
+						use: [{
+							loader: "babel-loader",
+							options: {
+								babelrc: true,
 							// envName: "browser",
-						},
-					}],
-				},
+							},
+						}],
+					}]
+					: []),
 				{
 					test: /(\.html|\.txt)$/,
 					use: [

@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"test:c8": "cross-env NODE_ENV=test c8 -r json node --experimental-modules --no-warnings ./test/index.mjs | faucet && c8 report -r text"
+		"test:c8": "cross-env NODE_ENV=test c8 -r json node --experimental-modules --loader ./utils/esm-alias-loader.mjs --no-warnings ./test/index.mjs | faucet && c8 report"
 	},
 	"dependencies": {},
 	"devDependencies": {

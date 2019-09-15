@@ -1,0 +1,12 @@
+{
+	"temp-dir": "./coverage2",
+	"report-dir": "./coverage2",
+	"reporter": [
+		"lcov",
+		"text"
+	],
+	"exclude": [
+		"utils/**/*",
+		"test/**/*"
+	]
+}

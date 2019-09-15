@@ -1,35 +1,28 @@
 {
-	"name": "projectname",
+	"name": "{{project_name}}",
 	"version": "0.0.0",
-	"description": "projectdescription",
+	"description": "{{project_name}} description",
 	"license": "MIT",
-	"main": "dist/projectname.js",
-	"module": "src/index.js",
+	"main": "dist/js/{{project_name}}.js",
+	"module": "src/app/index.mjs",
 	"engines": {
 		"node": ">=10.11.0"
 	},
 	"_moduleAliases": {
-		"projectname": "./src/index.js"
-	},
-	"nyc": {
-		"temp-dir": "./coverage",
-		"report-dir": "./coverage",
-		"reporter": [
-			"lcov",
-			"text"
-		]
+		"{{project_name}}": "./src/app/index.mjs"
 	},
 	"scripts": {
 		"init": "rm -rf node_modules > /dev/null && npm i",
-		"start": "run-s start:*",
-		"build": "run-s build:*",
-		"bump": "npm version patch --no-git-tag-version",
 		"update": "npx npm-check-updates -u && npm install && npm update --dev && npm audit fix",
+		"start": "run-s start:*",
+		"start:0": "",
+		"build": "run-s build:*",
+		"build:0": "",
 		"test": "eslint . && run-p test:*",
 		"fix": "eslint --fix .",
-		"coverage": "codecov",
-		"release": "npm run release-patch",
-		"release-nobump": "npm test && npm run build && npm run documentation && va-release --no-github --no-npm",
+		"bump": "npm version patch --no-git-tag-version",
+		"release": "npm run release-nobump",
+		"release-nobump": "npm test && npm run build && npm run documentation && va-release",
 		"release-patch": "npm test && npm run build && npm run documentation && va-release --version patch",
 		"release-minor": "npm test && npm run build && npm run documentation && va-release --version minor",
 		"release-major": "npm test && npm run build && npm run documentation && va-release --version major",
@@ -50,6 +43,7 @@
 	"keywords": [],
 	"dependencies": {},
 	"devDependencies": {
+		"copyfiles": "^2.1.1",
 		"cross-env": "^5.2.0",
 		"deepmerge": "^3.2.0",
 		"eslint": ">=5.16.0",
@@ -63,15 +57,10 @@
 		"sinon": "^7.3.2",
 		"tape": "^4.10.1",
 		"universal-url": "^2.0.0",
+		"minimatch": "^3.0.4",
+		"sync-directory": "^2.0.8",
+		"find-free-port": "^2.0.0",
+		"open": "^6.4.0",
 		"va-release": "^1.1.14"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/projectowner/projectname.git"
-	},
-	"bugs": {
-		"url": "https://github.com/projectowner/projectname/issues"
-	},
-	"homepage": "https://github.com/projectowner/projectname#readme",
-	"tonicExampleFilename": "tonic-example.js"
+	}
 }

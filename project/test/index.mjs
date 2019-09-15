@@ -1,7 +1,8 @@
 import test from "tape";
 import sinon from "sinon";
+import main from "{{project_name}}";
 
 test("empty test", t => {
-	t.ok(true, "test passed :)");
+	t.equal(main(), "result");
 	t.end();
 });
