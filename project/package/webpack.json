@@ -1,8 +1,10 @@
 {
 	"scripts": {
 		"build:js": "run-p build-js:*",
-		"build-js:legacy": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=production BABEL_ENV=production webpack --config ./webpack/production.config.js",
-		"build-js:modern": "cross-env BROWSERSLIST_ENV=modern NODE_ENV=production BABEL_ENV=production webpack --config ./webpack/production.config.js"
+		"build-js:modern": "run-s browserlist:modern build-webpack:modern",
+		"build-js:legacy": "run-s build-webpack:legacy",
+		"build-webpack:legacy": "cross-env NODE_ENV=production BABEL_ENV=production webpack --env.BROWSERSLIST_ENV=legacy --config ./webpack/production.config.js",
+		"build-webpack:modern": "cross-env NODE_ENV=production BABEL_ENV=production webpack --env.BROWSERSLIST_ENV=modern --env.WEBPACK_BUNDLE_SUFFIX=.modern --config ./webpack/production.config.js"
 	},
 	"dependencies": {},
 	"devDependencies": {
@@ -13,6 +15,7 @@
 		"webpack-merge": "4.2.1",
 		"imports-loader": "^0.8.0",
 		"inject-loader": "^4.0.1",
+		"browserslist-useragent-regexp": "^1.3.1-beta",
 		"terser-webpack-plugin": "^1.2.3"
 	}
 }

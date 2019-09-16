@@ -7,16 +7,17 @@ const ma = pkg._moduleAliases || {};
 const alias = Object.keys(ma).reduce((acc, key) => (acc[key] = path.resolve(__dirname, "../", ma[key]), acc), {});
 const vasettings = pkg["va-release"] || {};
 module.exports = (env = {}) => {
+	env = Object.assign({}, process.env, env);
 	console.log("env", env);
 	return ({
 		entry: `./src/app/index.mjs`,
 		output: {
 			path: path.resolve(__dirname, "../dist/js"),
-			filename: `${pkg.name}${process.env.BROWSERSLIST_ENV === "modern" ? ".modern" : ""}.js`,
+			filename: `index${env.WEBPACK_BUNDLE_SUFFIX || ""}.js`,
 			library: vasettings.library,
 			libraryExport: "default",
 			libraryTarget: "umd",
-			// publicPath: `/js/`,
+			publicPath: `/js/`,
 			globalObject: "typeof self !== 'undefined' ? self : this",
 		},
 		resolve: {
@@ -33,7 +34,7 @@ module.exports = (env = {}) => {
 							loader: "babel-loader",
 							options: {
 								babelrc: true,
-							// envName: "browser",
+								envName: JSON.stringify(env),
 							},
 						}],
 					}]

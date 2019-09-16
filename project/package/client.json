@@ -1,14 +1,19 @@
 {
 	"scripts": {
 		"build": "run-s clean:* bump copy:* build:* minify:*",
-		"build:less": "lessc ./src/less/index.less ./dist/css/index.css && postcss ./dist/css/index.css -r -u autoprefixer",
 		"copy:sw": "copyfiles -f ./src/sw.js ./dist/",
-		"dev": "run-p start build-and-minify:css copy:* dev:less \"dev:js -- {@}\" --",
+		"dev": "run-p start build-and-minify:css copy:* dev:less browserlist:modern \"dev:js -- {@}\" --",
 		"dev:js": "node --experimental-modules --no-warnings ./utils/dev-server.mjs",
 		"dev:less": "chokidar './src/less/**/*.less' -c 'npm run build-and-minify:css'",
 		"clean:js": "rm -rf ./dist/js/ > /dev/null",
-		"minify:css": "foreach -g './dist/css/index.css' -i './dist/css/index.min.css' -x 'uglifycss #{path} --output #{dir}/#{name}.min#{ext}'",
-		"build-and-minify:css": "run-p build:less minify:css"
+		"minify:css": "foreach -g './dist/css/*.css' -i './dist/css/*.min.css' -x 'uglifycss #{path} --output #{dir}/#{name}.min#{ext}'",
+		"build-and-minify:css": "run-s build:less build:css:* minify:css",
+		"build:less": "lessc ./src/less/index.less ./dist/css/index.src.css",
+		"build:css:modern": "cross-env BROWSERSLIST_ENV=modern postcss ./dist/css/index.src.css -o ./dist/css/index.modern.css -u postcss-preset-env",
+		"build:css:legacy": "cross-env BROWSERSLIST_ENV=legacy postcss ./dist/css/index.src.css -o ./dist/css/index.css  -u postcss-preset-env",
+		"browserlist:modern": "mkdir -p ./dist/js && echo \"window['browserlist-modern'] = $(cross-env BROWSERSLIST_ENV=modern browserslist-useragent-regexp --allowHigherVersions);\" > ./dist/js/browserlist-modern.js",
+		"image:favicon": "node --experimental-modules --no-warnings ./utils/image-favicons.mjs",
+		"image:compress": "node --experimental-modules --no-warnings ./utils/image-compress.mjs"
 	},
 	"dependencies": {},
 	"devDependencies": {
@@ -21,10 +26,13 @@
 		"uglifycss": "0.0.29",
 		"ngrok": "^3.1.0",
 		"postcss-cli": "^6.0.0",
+		"postcss-preset-env": "^6.7.0",
 		"less": "^3.8.1",
 		"html-escape": "^2.0.0",
 		"html-loader": "^0.4.5",
 		"autoprefixer": "^9.1.5",
-		"browser-sync": "^2.24.7"
+		"browser-sync": "^2.24.7",
+		"jimp": "^0.8.2",
+		"image-data-uri": "^2.0.1"
 	}
 }

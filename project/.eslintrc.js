@@ -15,6 +15,7 @@ module.exports = {
     },
     "rules": {
 		// BASIC
+		"require-atomic-updates": 0,
 		"require-yield": 0,
 		"no-this-before-super": 2,
 		// STYLE

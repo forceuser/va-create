@@ -10,6 +10,7 @@ import camelcase from "camelcase";
 import open from "open";
 import isWSL from "is-wsl";
 import wslpath from "wsl-path";
+import istextorbinary from "istextorbinary";
 import "colors";
 
 const __dirname = $path.dirname(new URL(import.meta.url).pathname);
@@ -95,12 +96,14 @@ function isIncluded (include, flags) {
 
 async function copy (src, dest, flags, data) {
 	async function updateFile (destPath) {
-		let fileContents = (await fs.readFile(destPath, "utf8"));
-		fileContents = fileContents.replace(/\{\{(.*?)\}\}/igm, (all, param) => {
-			const p = data[param];
-			return p == null ? `{{${param}}}` : p;
-		});
-		await fs.writeFile(destPath, fileContents, "utf8");
+		if (istextorbinary.isText(destPath)) {
+			let fileContents = (await fs.readFile(destPath, "utf8"));
+			fileContents = fileContents.replace(/\{\{(.*?)\}\}/igm, (all, param) => {
+				const p = data[param];
+				return p == null ? `{{${param}}}` : p;
+			});
+			await fs.writeFile(destPath, fileContents, "utf8");
+		}
 	}
 
 	const root = src;

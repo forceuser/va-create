@@ -1,7 +1,7 @@
 {
 	"name": "va-create",
 	"description": "",
-	"version": "0.0.15",
+	"version": "0.0.16",
 	"main": "index.mjs",
 	"engines": {
 		"node": ">=10.11.0"
@@ -61,6 +61,7 @@
 		"c8": "^5.0.4",
 		"cross-env": "^5.2.1",
 		"eslint": ">=6.4.0",
+		"istextorbinary": "^2.5.1",
 		"nyc": "^14.1.1",
 		"va-release": "^1.1.15"
 	},

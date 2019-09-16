@@ -47,7 +47,7 @@ self.addEventListener("fetch", event => {
 		const url = request.url;
 		const relUrl = (url.replace(new RegExp("^" + escapeRegExp(baseUrl), "igm"), "") || "").split("#")[0].split("?")[0];
 		const isAbsolute = isAbsoluteURL(relUrl) && !relUrl.includes("recaptcha");
-		const isCacheable = isAbsolute || ["css/", "img/", "js/"].some(match => relUrl.startsWith(match)) || !relUrl.startsWith("api/");
+		const isCacheable = isAbsolute || (["css/", "img/", "js/"].some(match => relUrl.startsWith(match)) && !relUrl.match(/^(api|browsersymc)\//));
 		// console.log("relUrl", url, relUrl, isCacheable, isIndexHtml);
 		if (isCacheable) {
 			const cache = await caches.open(cacheName);

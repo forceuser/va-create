@@ -6,6 +6,7 @@ import fs from "fs-extra";
 import os from "os";
 import url from "url";
 import yargs from "yargs";
+import http2 from "http2";
 import minimatch from "minimatch";
 import merge from "deepmerge";
 import webpack from "webpack";
@@ -115,10 +116,12 @@ async function runOnPort (port) {
 			changeOrigin: devSettings.changeOrigin !== false,
 		}),
 	] : [];
-	const webpackConfig = typeof webpackConfigRaw === "function" ? webpackConfigRaw() : webpackConfigRaw;
-	const webpackCompiler = webpack(webpackConfig);
+
+	const webpackCompiler = webpack((devSettings.webpackEnv || [{}]).map(env => {
+		return typeof webpackConfigRaw === "function" ? webpackConfigRaw(env) : webpackConfigRaw;
+	}));
 	const webpackDevInstance = webpackDevMiddleware(webpackCompiler, {
-		publicPath: webpackConfig.output.publicPath,
+		// publicPath: webpackConfig.output.publicPath,
 		stats: "errors-only",
 	});
 
