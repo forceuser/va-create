@@ -158,7 +158,12 @@ async function runOnPort (port) {
 			match = fileName.match(/^\/resources\/[^/\\]+\/js\/(.*)/);
 			if (match && match[1]) {
 				req.url = `/resources/${pkg.version}/js/${match[1]}`;
-				return invokeMiddleware(webpackMiddlewares, req, res);
+				return invokeMiddleware(webpackMiddlewares, req, res)
+					.then(() => {
+						// file not found on webpackMiddleware virtual file system
+						req.url = `/js/${match[1]}`;
+						return next();
+					});
 			}
 
 			match = fileName.match(/^\/resources\/[^/\\]+\/(.*)/);

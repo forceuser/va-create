@@ -34,6 +34,7 @@ async function readln (question) {
 }
 const fileRules = {
 	"-npmignore": {rename: ".npmignore"},
+	"package": {flags: false},
 	"package.json": {flags: false},
 	"babel.config.js": {flags: ["client", "lib", "babel"]},
 	".browserslistrc": {flags: ["client", "lib", "babel"]},
@@ -47,7 +48,7 @@ const fileRules = {
 	"src/app/cli.mjs": {flags: ["cli"]},
 	"src/app/index.mjs": {flags: ["client", "lib"]},
 	"src/sw.js": {flags: ["client"]},
-	"utils/run.js": {flags: false},
+	// "utils/run.js": {flags: false},
 	"utils/dev-server.mjs": {flags: ["client"]},
 	"utils/invoke-middleware.mjs": {flags: ["client"]},
 };

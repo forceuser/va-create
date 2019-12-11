@@ -33,6 +33,7 @@
 		"autoprefixer": "^9.1.5",
 		"browser-sync": "^2.24.7",
 		"jimp": "^0.8.2",
-		"image-data-uri": "^2.0.1"
+		"image-data-uri": "^2.0.1",
+		"to-ico": "^1.1.5"
 	}
 }

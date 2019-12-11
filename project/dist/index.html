@@ -3,11 +3,12 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>{{project_name}} placeholder page</title>
-		<meta name="description" content="test-crt placeholder page" />
+		<meta name="description" content="{{project_name}} placeholder page" />
         <base href="/"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, minimal-ui"/>
 		<meta name="theme-color" content="#ffffff">
-		<link rel="apple-touch-icon" sizes="152x152" href="/img/favicon/icon-152x152.png"/>
+		<link rel="icon" type="image/png" sizes="180x180" href="/img/favicon/icon-180x180.png"/>
+		<link rel="apple-touch-icon" href="/img/favicon/icon-180x180.png"/>
 		<link rel="manifest" href="manifest.json"/>
 		<script>
 			window.startTime = +(new Date());
@@ -15,7 +16,7 @@
 				var webp = document.createElement("img");
 				webp.onload = webp.onerror = function () {
 					if (webp.height == 2) {
-						document.documentElement.className = (document.documentElement.className ? " " : "") + "webp";
+						document.documentElement.className += (document.documentElement.className ? " " : "") + "webp";
 					}
 				};
 				webp.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
@@ -24,7 +25,7 @@
 		</script>
 	</head>
 	<body>
-		<h2>test-crt placeholder page</h2>
+		<h2>{{project_name}} placeholder page</h2>
 		<script src="js/browserlist-modern.js">
 		</script>
 		<script>
@@ -39,7 +40,7 @@
 			script.setAttribute("async", "");
 			document.body.appendChild(script);
 
-			if ('serviceWorker' in navigator) {
+			if ("serviceWorker" in navigator) {
 				window.addEventListener("load", function() {
 					navigator.serviceWorker.register('/sw.js')
 					.then(

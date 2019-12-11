@@ -8,7 +8,6 @@ const alias = Object.keys(ma).reduce((acc, key) => (acc[key] = path.resolve(__di
 const vasettings = pkg["va-release"] || {};
 module.exports = (env = {}) => {
 	env = Object.assign({}, process.env, env);
-	console.log("env", env);
 	return ({
 		entry: `./src/app/index.mjs`,
 		output: {

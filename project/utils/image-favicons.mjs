@@ -1,4 +1,5 @@
 import jimp from "jimp";
+import toIco from "to-ico";
 import fs from "fs-extra";
 import process from "process";
 import path from "path";
@@ -28,20 +29,30 @@ function getPackageDir () {
 }
 
 const packageDir = getPackageDir();
-
 const sizes = [48, 57, 72, 96, 128, 144, 152, 180, 192, 256, 384, 512];
-jimp
-	.read(path.resolve(packageDir, "dist/img/favicon/icon-src.png"))
-	.then(image => {
-		return sizes.reduce(async (prev, size) => {
-			console.log("size", size);
-			await prev;
-			await image
-				.clone()
-				.resize(size, size)
-				.write(path.resolve(packageDir, `dist/img/favicon/icon-${size}x${size}.png`));
-		}, {});
-	})
-	.catch(error => {
-		console.log("error", error);
-	});
+
+async function main () {
+	const fileData = await fs.readFile(path.resolve(packageDir, "dist/img/favicon/icon-src.png"));
+	const iconData = await toIco([fileData], {resize: true, sizes: [16]});
+	await fs.writeFile(path.resolve(packageDir, "dist/favicon.ico"), iconData);
+	await fs.writeFile(path.resolve(packageDir, "dist/img/favicon/icon-16x16.ico"), iconData);
+
+	jimp
+		.read(path.resolve(packageDir, "dist/img/favicon/icon-src.png"))
+		.then(image => {
+			return sizes.reduce(async (prev, size) => {
+				console.log("size", size);
+				await prev;
+				await image
+					.clone()
+					.resize(size, size)
+					.write(path.resolve(packageDir, `dist/img/favicon/icon-${size}x${size}.png`));
+			}, {});
+		})
+		.catch(error => {
+			console.log("error", error);
+		});
+}
+
+main();
+

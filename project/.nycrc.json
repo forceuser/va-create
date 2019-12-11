@@ -1,6 +1,6 @@
 {
-	"temp-dir": "./coverage2",
-	"report-dir": "./coverage2",
+	"temp-dir": "./coverage",
+	"report-dir": "./coverage",
 	"reporter": [
 		"lcov",
 		"text"
