@@ -72,8 +72,8 @@ const packageRules = [
 	{name: "client", message: "Include web-client code?", deps: ["webpack"], get: choiseItem},
 	{name: "lib", message: "Will project be a standalone library?", get: choiseItem},
 	{name: "cli", message: "Will it have command line interface?", get: choiseItem},
-	{name: "github", message: "Use github repo?", ask: ["package_owner"], get: choiseItem},
-	{name: "package_owner", message: "Enter github package owner", optional: true, get: inputItem},
+	{name: "github", message: "Use github repo?", ask: ["project_owner"], get: choiseItem},
+	{name: "project_owner", message: "Enter github package owner", optional: true, get: inputItem},
 	{name: "npm", message: "Publish to npm?", get: choiseItem},
 	{name: "babel", message: "Include babel boilerlate?", get: choiseItem},
 	{name: "webpack", message: "Include webpack?", get: choiseItem},
@@ -202,12 +202,18 @@ async function main () {
 
 		for (const rule of packageRules) {
 			if (flags.has(rule.name)) {
-				const p = await readJson(`./package/${rule.name}.json`);
-				pkg = merge(pkg, p);
+				try {
+					const p = await readJson(`./package/${rule.name}.json`);
+					pkg = merge(pkg, p);
+				}
+				catch (error) {
+					// ignore;
+				}
 			}
 		}
 		await fs.ensureFile($path.resolve(data.dest, "./package.json"));
 		await fs.writeFile($path.resolve(data.dest, "./package.json"), JSON.stringify(pkg, null, "\t"), "utf8");
+		console.log("DATA", data);
 		await copy(data.src, data.dest, flags, data);
 
 		console.log(`${"Success!".green} Project ${`${data.project_name}`.cyan} created at ${`${data.dest}`.cyan}`);

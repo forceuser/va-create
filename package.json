@@ -1,7 +1,7 @@
 {
 	"name": "va-create",
 	"description": "",
-	"version": "0.0.18",
+	"version": "0.0.19",
 	"main": "index.mjs",
 	"engines": {
 		"node": ">=10.11.0"

@@ -15,10 +15,9 @@
 		"init": "rm -rf node_modules > /dev/null && npm i",
 		"update": "npx npm-check-updates -u && npm install && npm update --dev && npm audit fix",
 		"start": "run-s start:*",
-		"start:0": "",
 		"build": "run-s build:*",
-		"build:0": "",
 		"test": "eslint . && run-p test:*",
+		"documentation": "run-p documentation:*",
 		"fix": "eslint --fix .",
 		"bump": "npm version patch --no-git-tag-version",
 		"release": "npm run release-nobump",
@@ -26,7 +25,11 @@
 		"release-patch": "npm test && npm run build && npm run documentation && va-release --version patch",
 		"release-minor": "npm test && npm run build && npm run documentation && va-release --version minor",
 		"release-major": "npm test && npm run build && npm run documentation && va-release --version major",
-		"build-templates": "va-release -t"
+		"build-templates": "va-release -t",
+		"start:0": "",
+		"build:0": "",
+		"test:0": "",
+		"documentation:0": ""
 	},
 	"va-release": {
 		"assets": "dist/**/*",
